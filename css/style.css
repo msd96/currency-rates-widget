@@ -80,7 +80,7 @@ DIV {
 	border-right: 5px solid transparent;
 	border-top: 5px solid rgba(100,100,100);
 	transform: rotate(0deg);
-    top:-2px;
+    top:-3px;
     position:relative
 }
 .widget .w-b .w-b-c .wbc-s {
@@ -166,4 +166,15 @@ DIV {
     text-align: center;
 	padding-top:1px;
 	padding-bottom:1px;
+	min-height:19px
+}
+.widget .e {
+	background-color: white;
+    min-height: 43px;
+    position: relative;
+    margin: auto;
+    text-align: center;
+    padding-top: 20px;
+    margin-bottom: 10px;
+    border-radius: 10px
 }
