@@ -191,6 +191,10 @@ function fetchData(){
 		function td(date1,date2){
 			return parseFloat((Math.abs(date1 - date2) / 36e5).toFixed(2));
 		}
+		function showError(msg){
+			document.querySelectorAll(".w-b")[0].innerHTML = "<div class='e'>" + msg + "</div>";
+			setTimeout(function(){document.querySelectorAll(".w-b")[0].style.opacity = 1},10);
+		}
 		try{
 			const xh = new XMLHttpRequest();
 			xh.onreadystatechange = () => {
@@ -200,9 +204,23 @@ function fetchData(){
 						lt = new Date();
 						goFetch(fmode,xh.responseText);
 					}
-				}
-				else{
-					em = "could not get response (rates) from remote server";
+					else{
+						console.log(lt,td(lt,new Date()));
+						console.log(td(lt,new Date()) > 8);
+						if(td(lt,new Date()) > 8){
+							em = "could not get response (rates) properly";
+							showError(em);
+						}
+						else{
+							if(ohd && td(lt,new Date()) < 24){
+								goFetch(fmode,((fmode == 1) ? JSON.stringify(rates) : JSON.stringify(rates2)));
+							}
+							else{
+								em = "could not get response (rates) properly";
+								showError(em);
+							}
+						}
+					}
 				}
 			}
 			xh.open("GET","https://my.tawhid.tj/twbrates/v2/Handler" + ((fmode == 1) ? "" : "2") + ".ashx",true);
@@ -210,6 +228,7 @@ function fetchData(){
 		}
 		catch(e){
 			//em = e.message;
+			console.log(td(lt,new Date()) > 8);
 			if(td(lt,new Date()) > 8){
 				document.querySelectorAll(".w-b")[0].innerHTML = "<div class='e'>could not get response (rates) properly</div>";
 				setTimeout(function(){document.querySelectorAll(".w-b")[0].style.opacity = 1},10);
@@ -226,7 +245,8 @@ function fetchData(){
 		}
 	}
 	else{
-		em = "exchange rates were not found";		
+		em = "exchange rates were not found";
+		showError(em);
 	}
 }
 
@@ -445,6 +465,9 @@ function setNewRates(fm,ro){
 					case "EXCHSell": 
 						rt_ah.push("асъори нақдӣ");
 						break;
+					case "NonCashExchSell": 
+						rt_ah.push("асъори нақдӣ");
+						break;
 					case "MTSell":  
 						rt_ah.push("интиқолҳо");
 						break;
@@ -518,7 +541,21 @@ function setNewRates(fm,ro){
 				a1.push(ar);
 			}
 			a0.push(a1);
-			rt_ah.push(rates2.data[i][0]);
+			switch(rates2.data[i][0]){
+				case "Cash_Rate": 
+					rt_ah.push("асъори нақдӣ");
+					break;
+				case "NonCash_Rate":  
+					rt_ah.push("асъори ғайринақдӣ");
+					break;
+				case "MoneyTransfer_Rate":  
+					rt_ah.push("интиқолҳо");
+					break;
+				default:
+					rt_ah.push(rates2.data[i][0]);
+					break;
+			}
+			
 		}
 		rf_dt.push(a0);
 		if(wb_al.length == rf_al.length){
@@ -535,8 +572,11 @@ function setNewRates(fm,ro){
 		}
 	}
 	if(uip){
+		console.log(rt_ah);
 		for(h=0;h<wb_l;h++){
+			let wb_h = wb.children[h].children[0].children[0].children[0].children[0];
 			let wb_t = wb.children[h].children[2].children[0].children[0];
+			wb_h.innerHTML = rt_ah[h];
 			for(i=0;i<wb_t.children.length;i++){
 				for(j=0;j<wb_t.children[i].children.length;j++){
 					wb_t.children[i].children[j].children[0].innerHTML = rf_dt[0][h][i][j];
